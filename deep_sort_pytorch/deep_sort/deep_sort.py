@@ -37,20 +37,19 @@ class DeepSort(object):
         scores = np.array([d.confidence for d in detections])
         indices = non_max_suppression(boxes, self.nms_max_overlap, scores)
         detections = [detections[i] for i in indices]
-
         # update tracker
         self.tracker.predict()
-        self.tracker.update(detections)
-
+        matchs = self.tracker.update(detections)
         # output bbox identities
         outputs = []
-        for track in self.tracker.tracks:
+        # t=[]
+        for track,(t,d) in zip(self.tracker.tracks, matchs):
             if not track.is_confirmed() or track.time_since_update > 1:
                 continue
             box = track.to_tlwh()
             x1, y1, x2, y2 = self._tlwh_to_xyxy(box)
             track_id = track.track_id
-            outputs.append(np.array([x1, y1, x2, y2, track_id], dtype=np.int))
+            outputs.insert(d, np.array([x1, y1, x2, y2, track_id], dtype=np.int))
         if len(outputs) > 0:
             outputs = np.stack(outputs, axis=0)
         return outputs

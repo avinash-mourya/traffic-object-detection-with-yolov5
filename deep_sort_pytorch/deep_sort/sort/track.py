@@ -83,12 +83,10 @@ class Track:
     def to_tlwh(self):
         """Get current position in bounding box format `(top left x, top left y,
         width, height)`.
-
         Returns
         -------
         ndarray
             The bounding box.
-
         """
         ret = self.mean[:4].copy()
         ret[2] *= ret[3]
@@ -98,12 +96,10 @@ class Track:
     def to_tlbr(self):
         """Get current position in bounding box format `(min x, miny, max x,
         max y)`.
-
         Returns
         -------
         ndarray
             The bounding box.
-
         """
         ret = self.to_tlwh()
         ret[2:] = ret[:2] + ret[2:]

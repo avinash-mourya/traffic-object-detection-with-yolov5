@@ -3,8 +3,10 @@
   <component name="ChangeListManager">
     <list default="true" id="110897d6-1d89-49b4-ab7a-5859606204a0" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov5_model/yolov5s.pt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov5_model/yolov5x.pt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gui.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tracking_with_yolov5.py" beforeDir="false" afterPath="$PROJECT_DIR$/tracking_with_yolov5.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/traffic_object_detection.py" beforeDir="false" afterPath="$PROJECT_DIR$/traffic_object_detection.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/yolov5_detection.py" beforeDir="false" afterPath="$PROJECT_DIR$/yolov5_detection.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

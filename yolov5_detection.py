@@ -14,7 +14,7 @@ import torch
 # from yolov5.utils.datasets import LoadStreams, LoadImages
 from yolov5.utils.general import check_img_size,non_max_suppression,scale_coords,set_logging
 # from yolov5.utils.plots import plot_one_box
-from yolov5.utils.torch_utils import select_device
+from yolov5.utils.torch_utils import select_device,time_synchronized
 
 class Yolov5Detector:
     def __init__(self):
@@ -64,7 +64,6 @@ class Yolov5Detector:
 
     def detect(self,img,model,stride,device,imgsz):
         names = model.module.names if hasattr(model, 'module') else model.names
-        # print(names)
         # t0 = time.time()
         im0s = img.copy()
         img = letterbox(im0s, imgsz, stride=stride)[0]
@@ -80,9 +79,10 @@ class Yolov5Detector:
             # Inference
         # t1 = time_synchronized()
         pred = model(img, augment=True)[0]
+        # print(pred)
         # Apply NMS
-        pred = non_max_suppression(pred, 0.25, 0.5, classes=None, agnostic=True)
-        # t2 = time_synchronized()
+        pred = non_max_suppression(pred, 0.60, 0.5, classes=[0,2,3,5,7], agnostic=True)
+        t2 = time_synchronized()
         xywhs,labels,xyxys,confs = [],[],[],[]
         for i, det in enumerate(pred):
             im0 = im0s.copy()
@@ -111,6 +111,7 @@ class Yolov5Detector:
             tl = 2
             fps = self.calculate_fps(start_time,f)
             print(fps)
+            print(labels)
             for i,(box,label) in enumerate(zip(xyxys,labels)):
                 color = (0,255,0)
                 box = box[:4]
@@ -125,7 +126,7 @@ class Yolov5Detector:
         cv2.destroyAllWindows()
 
 if __name__ == '__main__':
-    video_capture = cv2.VideoCapture("traffic1.mp4")
+    video_capture = cv2.VideoCapture("traffic2.mp4")
     detector = Yolov5Detector()
     model,stride,device,imgsz = detector.load_model()
     detector.main(video_capture)

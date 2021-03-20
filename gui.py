@@ -1,14 +1,14 @@
 from PIL import Image
 from PIL import ImageTk
 import tkinter as tki
-import tkinter.ttk as tk
 import threading
 import datetime
 import cv2
+import numpy as np
 from yolov5_detection import Yolov5Detector
 from tracking_with_yolov5 import Yolov5Tracker
 from traffic_object_detection import TrafficDetection
-
+import time
 class GUI:
     def __init__(self, vs):
         self.vs = vs
@@ -40,7 +40,6 @@ class GUI:
         self.thread = threading.Thread(target=self.videoStream, args=())
         self.thread.start()
 
-
         # set a callback to handle when the window is closed
         self.root.wm_title("Traffic")
         self.root.wm_protocol("WM_DELETE_WINDOW", self.onClose)
@@ -48,9 +47,12 @@ class GUI:
 
     def videoStream(self):
         try:
+            if not vs.isOpened():
+                print("video source not correct")
             f = 0
             start_time = datetime.datetime.now()
-            trackIds, position, speed_e,fps = {"motorcycle":[],"car":[],"auto":[],"truck":[],"bus":[]}, {}, 0,0.0
+            # {"motorcycle": [], "car": [], "auto": [], "truck": [], "bus": []}
+            trackIds, position, speed_e,fps = [], {}, 0,0.0
             two_w,three_w,four_w,truck,bus,total=0,0,0,0,0,0
             while(self.vs.isOpened()):
                 ret,self.frame = self.vs.read()
@@ -58,38 +60,42 @@ class GUI:
                     break
                 f+=1
                 xyxys, xywhs, labels, confs, img = detector.detect(self.frame, model, stride, device, imgsz)
-                cv2.line(img, (120, 145), (640, 145), (0, 0, 255), 2)
-                xywhss, confss, labelss = [], [], []
+                cv2.line(img, (30, 140), (500, 140), (0, 0, 255), 2)
+                xywhss,xyxyss,confss, labelss = [], [], [],[]
                 for det_box, xywh, conf, label in zip(xyxys, xywhs, confs, labels):
                     det_box = det_box[:4]
-                    if int(det_box[3]) >= 145 and int(det_box[2]) <= 6400:
+                    if int(det_box[3]) >= 140 and int(det_box[2]) <= 550:
                         xywhss.append(xywh)
                         confss.append(conf)
+                        xyxyss.append(det_box)
                         labelss.append(label)
                 outputs = track_v.start_tracking(deepsort, xywhss, confss, img)
+                print(outputs)
                 if len(outputs) > 0:
                     bbox_xyxy = outputs[:, :4]
                     identities = outputs[:, -1]
-                    for i, (box, label) in enumerate(zip(bbox_xyxy, labelss)):
+
+                    for i, box in enumerate(bbox_xyxy):
                         color = (0, 255, 0)
                         id = int(identities[i])
+                        label = labelss[::-1][i]
+
                         # Object counting
                         if label == "motorcycle":
                             two_w,total = traffic_d.Obj_counting(id,label,trackIds,two_w,total)
-                        if label=="auto":
+                        elif label=="auto":
                             three_w,total = traffic_d.Obj_counting(id,label,trackIds,three_w,total)
-                        if label=="car":
+                        elif label=="car":
                             four_w,total = traffic_d.Obj_counting(id,label,trackIds,four_w,total)
-                        if label=="truck":
+                        elif label=="truck":
                             truck,total=traffic_d.Obj_counting(id,label,trackIds,truck,total)
-                        if label=="bus":
+                        elif label=="bus":
                             bus,total = traffic_d.Obj_counting(id,label,trackIds,bus,total)
 
                         fps = detector.calculate_fps(start_time, f)
                         label_c = f"{label}{id} {confss[i][0]:.2f}"
                         img = detector.draw_bboxes(img, label_c, box, 2, color, fps)
-                        # cv2.putText(img, f"car:{car_count}", (30, 30), 0, 1, [225, 255, 255], thickness=2,
-                        #             lineType=cv2.LINE_AA)
+
                 img = cv2.resize(img,(650,360))
                 image = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
                 image = Image.fromarray(image)
@@ -165,8 +171,8 @@ if __name__ == '__main__':
     model, stride, device, imgsz = detector.load_model()
     deepsort = track_v.tracker()
     traffic_d = TrafficDetection()
-    vs = cv2.VideoCapture("traffic1.mp4")
-    # time.sleep(2.0)
+    vs = cv2.VideoCapture("traffic3.mp4")
+    time.sleep(2.0)
     # start the app
     gui = GUI(vs)
     gui.root.mainloop()

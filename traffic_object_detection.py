@@ -14,13 +14,13 @@ class TrafficDetection:
         return (knownWidth * focalLength) / pixelWidth
 
     def Obj_counting(self,Id,label,trackIds,count,total):
-        if Id in trackIds[label]:
+        if Id in trackIds:
             count = count
             total = total
         else:
             count += 1
             total += 1
-            trackIds[label].append(Id)
+            trackIds.append(Id)
         return count,total
 
     def speed_estimation(self, position1, position2, fps) -> float:
@@ -120,7 +120,4 @@ if __name__ == '__main__':
     traffic_d = TrafficDetection()
     video_capture = cv2.VideoCapture("traffic.mp4")
     traffic_d.main(video_capture)
-
-
-
 

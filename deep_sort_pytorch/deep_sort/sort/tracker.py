@@ -94,6 +94,7 @@ class Tracker:
             track.features = []
         self.metric.partial_fit(
             np.asarray(features), np.asarray(targets), active_targets)
+        return matches
 
     def _match(self, detections):
 
