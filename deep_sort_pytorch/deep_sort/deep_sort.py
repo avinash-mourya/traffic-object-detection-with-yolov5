@@ -42,12 +42,12 @@ class DeepSort(object):
         matchs = self.tracker.update(detections)
         # output bbox identities
         outputs = []
-        # t=[]
         for track,(t,d) in zip(self.tracker.tracks, matchs):
             if not track.is_confirmed() or track.time_since_update > 1:
                 continue
             box = track.to_tlwh()
             x1, y1, x2, y2 = self._tlwh_to_xyxy(box)
+            # print(f"({t},{d})")
             track_id = track.track_id
             outputs.insert(d, np.array([x1, y1, x2, y2, track_id], dtype=np.int))
         if len(outputs) > 0:

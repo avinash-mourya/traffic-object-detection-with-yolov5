@@ -9,6 +9,8 @@ from yolov5_detection import Yolov5Detector
 from tracking_with_yolov5 import Yolov5Tracker
 from traffic_object_detection import TrafficDetection
 import time
+import os
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 class GUI:
     def __init__(self, vs):
         self.vs = vs
@@ -64,21 +66,25 @@ class GUI:
                 xywhss,xyxyss,confss, labelss = [], [], [],[]
                 for det_box, xywh, conf, label in zip(xyxys, xywhs, confs, labels):
                     det_box = det_box[:4]
-                    if int(det_box[3]) >= 140 and int(det_box[2]) <= 550:
+                    if int(det_box[3]) >= 120 and int(det_box[2]) <= 550: # when vehicle cross the line
                         xywhss.append(xywh)
                         confss.append(conf)
-                        xyxyss.append(det_box)
+                        # xyxyss.append(det_box)
                         labelss.append(label)
                 outputs = track_v.start_tracking(deepsort, xywhss, confss, img)
-                print(outputs)
+
+                # Object tracking
                 if len(outputs) > 0:
                     bbox_xyxy = outputs[:, :4]
                     identities = outputs[:, -1]
-
-                    for i, box in enumerate(bbox_xyxy):
+                    print(labelss[::-1])
+                    # print(bbox_xyxy)
+                    print(identities)
+                    for i,box in enumerate(bbox_xyxy):
                         color = (0, 255, 0)
                         id = int(identities[i])
                         label = labelss[::-1][i]
+                        # print(label)
 
                         # Object counting
                         if label == "motorcycle":
@@ -93,8 +99,23 @@ class GUI:
                             bus,total = traffic_d.Obj_counting(id,label,trackIds,bus,total)
 
                         fps = detector.calculate_fps(start_time, f)
+                       #Speed estimation
+                        x1, y1, x2, y2 = int(box[0]), int(box[1]), int(box[2]), int(box[3])
+                        if id in position.keys():
+                            position1 = position[id]
+                            position[id] = [x1, y1, x2, y2]
+
+                            speed_e = traffic_d.speed_estimation(position1, [x1, y1, x2, y2], fps)
+                            # self.speed_list[id].append(self.speed_e)
+                        else:
+                            position[id] = [x1, y1, x2, y2]
+                            # self.speed_list[id] = []
+
                         label_c = f"{label}{id} {confss[i][0]:.2f}"
                         img = detector.draw_bboxes(img, label_c, box, 2, color, fps)
+                        if speed_e != 0.0:
+                            cv2.putText(img, f"{speed_e:.2f}km/hr", (int(box[2]), int(box[3])), 0, 0.7, [225, 255, 255], thickness=2,
+                                        lineType=cv2.LINE_AA)
 
                 img = cv2.resize(img,(650,360))
                 image = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -103,10 +124,13 @@ class GUI:
                 font = ("Arial", 12)
                 self.canvas.configure(image=image)
                 self.canvas.image = image
+                ## SHow all counting result
+
                 result = tki.Label(self.counting_result, text=f"Counting Results", width=12, font=font,
                                    anchor="center", fg="blue")
                 result.grid(row=0, column=2, padx=2)
                 # result.pack(padx=10, pady=10)
+
                 if self.two_w is None:
                     self.two_w = tki.Label(self.counting_result,text=f"Two Wheeler \n\n{two_w}",width=13,font=font,anchor="center",bg="#8080c0",fg="white")
                     self.two_w.grid(row =1,column =0,padx=2)
