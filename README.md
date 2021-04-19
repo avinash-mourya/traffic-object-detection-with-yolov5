@@ -7,7 +7,7 @@
 `pip install -r requirements.txt`
 ## before run gui.py
 - download the yolov5 weight from the latest realease https://github.com/ultralytics/yolov5/releases. Place the downlaoded .pt file under yolov5_model.
-- download the deep sort weights from https://drive.google.com/drive/folders/1xhG0kRH1EX5B9_Iz8gQJb7UNnn_riXi6. Place ckpt.t7 file underdeep_sort/deep/checkpoint/.
+- download the deep sort weights from https://drive.google.com/drive/folders/1xhG0kRH1EX5B9_Iz8gQJb7UNnn_riXi6. Place ckpt.t7 file under deep_sort/deep/checkpoint/.
 ## run 
 `python gui.py`
 
