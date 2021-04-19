@@ -10,5 +10,4 @@
 - download the deep sort weights from https://drive.google.com/drive/folders/1xhG0kRH1EX5B9_Iz8gQJb7UNnn_riXi6. Place ckpt.t7 file underdeep_sort/deep/checkpoint/.
 ## run 
 `python gui.py`
-## demo
-![Screenshot (36)](https://user-images.githubusercontent.com/47352327/115134485-19fec980-a02e-11eb-9870-4f56adfd5684.png)
+
